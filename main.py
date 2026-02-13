@@ -43,20 +43,32 @@ class CalculatorData(BaseModel):
     def labor_cost(self) -> float:
         return self.operator_job_hours * self.operator_wage_hourly
 
-    def total_cost(self) -> float:
-        return (1 + self.taxes_percentage) * ((1 + self.margin_percentage) * (
+    def total_process_cost(self):
+        return (
             self.material_cost()
             + self.energy_cost()
             + self.wear_cost()
             + self.labor_cost()
-        ) + self.shipping_cost)
+        )
 
+    # TODO: don't reuse the same function thrice
+    def margin_gain(self):
+        return self.total_process_cost() * self.margin_percentage
+
+    def tax_addition(self):
+        return (self.total_process_cost() + self.margin_gain() + self.shipping_cost) * self.taxes_percentage
+
+    def total_cost(self) -> float:
+        return self.total_process_cost() + self.margin_gain() + self.tax_addition()
 
 class CalculatorOutput(BaseModel):
     material_cost: float
     energy_cost: float
     wear_cost: float
     labor_cost: float
+    shipping_cost: float
+    margin_gain: float
+    tax_addition: float
     total_cost: float
 
 
@@ -123,6 +135,9 @@ def main():
                                  energy_cost = data.energy_cost(),
                                  wear_cost = data.wear_cost(),
                                  labor_cost = data.labor_cost(),
+                                 shipping_cost = data.shipping_cost,
+                                 margin_gain = data.margin_gain(),
+                                 tax_addition = data.tax_addition(),
                                  total_cost = data.total_cost()
                                  )
 
