@@ -1,8 +1,19 @@
 [project]
 name = "fdmcalc"
 version = "0.1.0"
-description = "Add your description here"
+description = "FDM Printing Cost Calculator"
+authors = [
+    { name = "ayimany" }
+]
+readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "pydantic>=2.12.5",
 ]
+
+[project.scripts]
+fdmcalc = "fdmcalc.main:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
