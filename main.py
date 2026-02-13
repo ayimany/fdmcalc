@@ -4,14 +4,15 @@ import os
 from pydantic import BaseModel, ValidationError
 
 YEAR_IN_HOURS = 8766
+HOUR_IN_SECONDS = 3600
 
 class CalculatorData(BaseModel):
     material_used_grams: float
     material_cost_per_kg: float
     energy_cost_per_kWh: float
-    machine_preheat_time: float
+    machine_preheat_time_seconds: float
     machine_preheat_kWh: float
-    machine_operating_time: float
+    machine_operating_time_hours: float
     machine_operating_kWh: float
     machine_cost_purchase: float
     machine_lifespan_years: float
@@ -27,15 +28,15 @@ class CalculatorData(BaseModel):
 
     def energy_cost(self) -> float:
         return self.energy_cost_per_kWh * (
-            self.machine_preheat_time * self.machine_preheat_kWh +
-            self.machine_operating_time * self.machine_operating_kWh
+                (self.machine_preheat_time_seconds / HOUR_IN_SECONDS) * self.machine_preheat_kWh +
+                self.machine_operating_time_hours * self.machine_operating_kWh
         )
 
     def wear_cost(self) -> float:
         return (
             (self.machine_cost_purchase
-            * (1 + self.machine_repair_percentage)
-            * self.machine_operating_time)
+             * (1 + self.machine_repair_percentage)
+             * self.machine_operating_time_hours)
             / (YEAR_IN_HOURS * self.machine_lifespan_years)
         )
 
@@ -43,7 +44,7 @@ class CalculatorData(BaseModel):
         return self.operator_job_hours * self.operator_wage_hourly
 
     def total_cost(self) -> float:
-        return self.taxes_percentage * (self.margin_percentage * (
+        return (1 + self.taxes_percentage) * ((1 + self.margin_percentage) * (
             self.material_cost()
             + self.energy_cost()
             + self.wear_cost()
@@ -63,9 +64,9 @@ def dump_variable_template(filename: str):
     zero = CalculatorData(material_used_grams = 0,
                           material_cost_per_kg = 0,
                           energy_cost_per_kWh = 0,
-                          machine_preheat_time = 0,
+                          machine_preheat_time_seconds = 0,
                           machine_preheat_kWh = 0,
-                          machine_operating_time = 0,
+                          machine_operating_time_hours= 0,
                           machine_operating_kWh = 0,
                           machine_cost_purchase = 0,
                           machine_lifespan_years = 0,
