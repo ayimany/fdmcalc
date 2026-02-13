@@ -114,6 +114,10 @@ def main():
             print(f"Error while parsing {args.export}: {e}")
             exit(1)
 
+        if data.machine_lifespan_years == 0:
+            print(f"Error: Cannot use a machine lifespan of zero years.")
+            exit(1)
+
         costs = CalculatorOutput(material_cost = data.material_cost(),
                                  energy_cost = data.energy_cost(),
                                  wear_cost = data.wear_cost(),
