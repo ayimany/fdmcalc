@@ -107,7 +107,7 @@ class FDMCalculator:
         )
 
 
-def dump_template(filename: str):
+def dump_template(filename: str, silent: bool = False):
     """Generates a template JSON file with default zero values."""
     # Create a template with reasonable default or zero values
     template_data = CalculatorInput(
@@ -131,12 +131,13 @@ def dump_template(filename: str):
     try:
         with open(filename, "w") as f:
             f.write(template_data.model_dump_json(indent=4))
-        print(f"Exported template to {filename}")
+        if not silent:
+            print(f"Exported template to {filename}")
     except IOError as e:
         print(f"Error while exporting template: {e}", file=sys.stderr)
 
 
-def run_calculator(import_file: str, export_file: Optional[str] = None):
+def run_calculator(import_file: str, export_file: Optional[str] = None, silent: bool = False):
     """Loads data, performs calculation, and exports/prints results."""
     if not os.path.exists(import_file):
         print(f"Error: File {import_file} does not exist.", file=sys.stderr)
@@ -160,12 +161,14 @@ def run_calculator(import_file: str, export_file: Optional[str] = None):
         try:
             with open(export_file, "w") as f:
                 f.write(results_json)
-            print(f"Results exported to {export_file}")
+            if not silent:
+                print(f"Results exported to {export_file}")
         except Exception as e:
             print(f"Error while writing to {export_file}: {e}", file=sys.stderr)
             sys.exit(1)
     else:
-        print(results_json)
+        if not silent:
+            print(results_json)
 
 
 def main():
@@ -173,13 +176,14 @@ def main():
     parser.add_argument("--import", dest="import_file", help="Path to input JSON file")
     parser.add_argument("--export", dest="export_file", help="Path to save results (JSON)")
     parser.add_argument("--dump-template", action="store_true", help="Generate a template JSON file")
+    parser.add_argument("--silent", action="store_true", help="Suppress all stdout output")
 
     args = parser.parse_args()
 
     if args.dump_template:
-        dump_template("fdmcalc_template.json")
+        dump_template("fdmcalc_template.json", silent=args.silent)
     elif args.import_file:
-        run_calculator(args.import_file, args.export_file)
+        run_calculator(args.import_file, args.export_file, silent=args.silent)
     else:
         parser.print_help()
 
