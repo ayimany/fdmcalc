@@ -96,7 +96,7 @@ def main():
     parser.add_argument("--dump-template", action="store_true")
     args = parser.parse_args()
 
-    if args.dump_template is not None:
+    if args.dump_template:
         dump_variable_template("fdmcalc_template.json")
         did_something = True
 
@@ -136,9 +136,6 @@ def main():
     if not did_something:
         print("* Use the --import flag to import machine, material and process information in JSON format.")
         print("* Use the --dump-template flag to export a template example filled with zeroes.")
-
-
-
 
 
 if __name__ == '__main__':
